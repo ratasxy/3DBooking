@@ -40,9 +40,11 @@
                 var data=this.data;
 
                 this.el.addEventListener('click',function(){
+                    console.log("clickkkk en hotspot");
                     //set the skybox source to the new image as per the spot
+                    console.log("enlazando a " + data.linkto);
                     var sky=document.getElementById("skybox");
-                    sky.setAttribute("src",data.linkto);
+                    sky.setAttribute("material","shader: flat; side: double; src: " + data.linkto);
 
                     var spotcomp=document.getElementById("spots");
                     var currspots=this.parentElement.getAttribute("id");
@@ -72,13 +74,17 @@
         </a-entity>
     </a-entity>
 
-    <a-entity id="skybox" src="#point0" geometry="primitive: sphere; radius: 10;" material="shader: flat; side: double; src: #point0">
+    <a-entity id="skybox" src="#point0" geometry="primitive: sphere; radius: 20;" material="shader: flat; side: double; src: #point0">
 
-        <a-box position="-1 0.5 -3" rotation="0 45 0" width="1" height="1" depth="1" color="#4CC3D9"></a-box>
     </a-entity>
 
-    <a-camera id="my-camera" position-listener>
-        <a-cursor></a-cursor>
+    <a-camera id="cam" position-listener>
+        <a-entity cursor="fuse:true;fuseTimeout:2000"
+                  geometry="primitive:ring;radiusInner:0.01;radiusOuter:0.02"
+                  position="0 0 -1.8"
+                  material="shader:flat;color:#ff0000"
+                  animation__mouseenter="property:scale;to:3 3 3;startEvents:mouseenter;endEvents:mouseleave;dir:reverse;dur:2000;loop:1">
+        </a-entity>
     </a-camera>
 
     
@@ -100,13 +106,23 @@
     </script>
 
     <script>
-        var conn = new WebSocket('ws://localhost:8080');
+
+        function getRandomColor() {
+            var letters = '0123456789ABCDEF';
+            var color = '#';
+            for (var i = 0; i < 6; i++) {
+                color += letters[Math.floor(Math.random() * 16)];
+            }
+            return color;
+        }
+
+        var conn = new WebSocket('ws://0.0.0.0:8080');
         conn.onopen = function(e) {
             console.log("Connection established!");
             var login = {type:"login", room:"<?echo $_GET['sala']; ?>", alias:"<?echo $_GET['alias']; ?>"};
             conn.send(btoa(JSON.stringify(login)));
 
-            document.getElementById('my-camera')
+            document.getElementById('cam')
                 .addEventListener('positionChanged', e => {
                     conn.send(btoa(JSON.stringify({type:"move", room:"<?echo $_GET['sala']; ?>", alias:"<?echo $_GET['alias']; ?>", position:e.detail})));
                     console.log('Nueva position:', e.detail);
@@ -114,7 +130,24 @@
         };
 
         conn.onmessage = function(e) {
-            console.log(e.data);
+            console.log('llego mensaje');
+            var data = JSON.parse(atob(e.data));
+            var sceneEl = document.querySelector('a-scene');
+
+            var element = document.getElementById("u-" + data.alias);
+
+            //If it isn't "undefined" and it isn't "null", then it exists.
+            if(typeof(element) != 'undefined' && element != null){
+                element.setAttribute('position', data.position);
+            } else{
+                var newo = document.createElement('a-sphere');
+                newo.setAttribute('id', 'u-' + data.alias);
+                newo.setAttribute('position', data.position);
+                newo.setAttribute('color', getRandomColor());
+                newo.setAttribute('radius', 0.3);
+                sceneEl.appendChild(newo);
+            }
+
         };
 
 
