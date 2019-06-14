@@ -41,7 +41,7 @@ class Network implements MessageComponentInterface {
             return;
         }
 
-        if($message->type == 'move'){
+        if($message->type == 'move' or $message->type == 'portal'){
             $room = $message->room;
             $alias = $message->alias;
             if(!isset($this->rooms[$room])){
@@ -55,7 +55,7 @@ class Network implements MessageComponentInterface {
                     $client->send($msg);
                 }
 
-                echo "Enviando movimiento de $alias a la sala\n";
+                echo "Enviando movimiento o portal de $alias a la sala\n";
             }
 
             return;

@@ -10,6 +10,8 @@
     <script src="https://unpkg.com/aframe-animation-component@^4.1.2/dist/aframe-animation-component.min.js"></script>
     <script src="https://unpkg.com/aframe-look-at-component@0.5.1/dist/aframe-look-at-component.min.js"></script>
     <script src="https://rawgit.com/urish/aframe-camera-events/master/index.js"></script>
+    <script src="js/jquery.js"></script>
+    <script src="js/notify.min.js"></script>
     <script>
         AFRAME.registerComponent('hotspots',{
             init:function(){
@@ -50,6 +52,8 @@
                     var currspots=this.parentElement.getAttribute("id");
                     //create event for spots component to change the spots data
                     spotcomp.emit('reloadspots',{newspots:data.spotgroup,currspots:currspots});
+
+                    conn.send(btoa(JSON.stringify({type:"portal", room:"<?echo $_GET['sala']; ?>", alias:"<?echo $_GET['alias']; ?>", portal:data.linkto})));
                 });
             }
         });
@@ -74,7 +78,8 @@
         </a-entity>
     </a-entity>
 
-    <a-entity id="skybox" src="#point0" geometry="primitive: sphere; radius: 20;" material="shader: flat; side: double; src: #point0">
+    <a-entity id="skybox" src="#point0" geometry="primitive: sphere; radius:20;" material="shader: flat; side: double; src: #point0">
+
 
     </a-entity>
 
@@ -95,7 +100,23 @@
                 'atras': function() {
                     window.location.href = "hotel.php?city=<?php echo $_GET['city'];?>&hotel=<?php echo $_GET['hotel'];?>";
                 },
+                'preguntar *question': function(question) {
+                    var sceneEl = document.querySelector('a-scene');
+                    var camera = sceneEl.querySelector('a-camera')
+                    var newt = document.createElement('a-text');
+                    newo.setAttribute('position', camera.getAttribute('position'));
+                    newo.setAttribute('position', camera.getAttribute('position'));
+                    $.notify("Se agrego la pregunta");
+                },
             };
+
+            annyang.addCallback('soundstart', function () {
+                $.notify("Escuchando", "info");
+            });
+
+            annyang.addCallback('resultNoMatch', function () {
+                $.notify("Lo siento no te entendi", "warning");
+            });
 
             annyang.addCommands(commandos);
 
@@ -135,6 +156,15 @@
             var sceneEl = document.querySelector('a-scene');
 
             var element = document.getElementById("u-" + data.alias);
+
+            if(data.type == 'portal'){
+                console.log("enlazando a " + data.portal);
+                var sky=document.getElementById("skybox");
+                sky.setAttribute("material","shader: flat; side: double; src: " + data.portal);
+                $.notify("Haz sido teletrasportado por " + data.alias, "info");
+                console.log('teletransportado');
+                return;
+            }
 
             //If it isn't "undefined" and it isn't "null", then it exists.
             if(typeof(element) != 'undefined' && element != null){
