@@ -105,8 +105,9 @@
                     var camera = sceneEl.querySelector('a-camera')
                     var newt = document.createElement('a-text');
                     newo.setAttribute('position', camera.getAttribute('position'));
-                    newo.setAttribute('position', camera.getAttribute('position'));
+                    newo.setAttribute('value', question);
                     $.notify("Se agrego la pregunta");
+                    sceneEl.appendChild(newt);
                 },
             };
 
