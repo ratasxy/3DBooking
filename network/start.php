@@ -12,7 +12,8 @@ $server = IoServer::factory(
             new Network()
         )
     ),
-    8080
+    2222
 );
 
+echo "Iniciando servidor de red\n";
 $server->run();

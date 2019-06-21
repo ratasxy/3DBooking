@@ -5,6 +5,7 @@
     <title>WebVR - Aframe - VR walkthrough</title>
     <meta name="description" content="WebVR - Aframe - VR walkthrough">
     <meta name="author" content="Kumar Ahir - VR Designer">
+    <link rel="stylesheet" type="text/css" href="js/modal.css">
     <script src="js/aframe.js"></script>
     <script src="//cdnjs.cloudflare.com/ajax/libs/annyang/2.6.0/annyang.min.js"></script>
     <script src="https://unpkg.com/aframe-animation-component@^4.1.2/dist/aframe-animation-component.min.js"></script>
@@ -83,7 +84,7 @@
 
     </a-entity>
 
-    <a-camera id="cam" position-listener>
+    <a-camera id="cam" look-controls movement-controls position-listener>
         <a-entity cursor="fuse:true;fuseTimeout:2000"
                   geometry="primitive:ring;radiusInner:0.01;radiusOuter:0.02"
                   position="0 0 -1.8"
@@ -95,6 +96,7 @@
     
 
     <script>
+
         if (annyang) {
             var commandos = {
                 'atras': function() {
@@ -103,11 +105,11 @@
                 'preguntar *question': function(question) {
                     var sceneEl = document.querySelector('a-scene');
                     var camera = sceneEl.querySelector('a-camera')
-                    var newt = document.createElement('a-text');
+                    var newo = document.createElement('a-text');
                     newo.setAttribute('position', camera.getAttribute('position'));
                     newo.setAttribute('value', question);
                     $.notify("Se agrego la pregunta");
-                    sceneEl.appendChild(newt);
+                    sceneEl.appendChild(newo);
                 },
             };
 
@@ -117,6 +119,10 @@
 
             annyang.addCallback('resultNoMatch', function () {
                 $.notify("Lo siento no te entendi", "warning");
+            });
+
+            annyang.addCallback('error', function(err) {
+                console.log('There was an error in Annyang!',err);
             });
 
             annyang.addCommands(commandos);
@@ -138,7 +144,7 @@
             return color;
         }
 
-        var conn = new WebSocket('ws://0.0.0.0:8080');
+        var conn = new WebSocket('ws://127.0.0.1:3333');
         conn.onopen = function(e) {
             console.log("Connection established!");
             var login = {type:"login", room:"<?echo $_GET['sala']; ?>", alias:"<?echo $_GET['alias']; ?>"};
@@ -150,6 +156,27 @@
                     console.log('Nueva position:', e.detail);
                 });
         };
+
+        function sendQuestion(){
+            $(".modalDialog").css({"opacity":"0","pointer-events":"none"});
+
+            value = $('#question').val();
+
+            $('#question').val('');
+
+            var sceneEl = document.querySelector('a-scene');
+            var camera = sceneEl.querySelector('a-camera')
+            var position = camera.getAttribute('position');
+
+            conn.send(btoa(JSON.stringify({type:"question", room:"<?echo $_GET['sala']; ?>", alias:"<?echo $_GET['alias']; ?>", position:position, question:value})));
+
+            var newo = document.createElement('a-text');
+            newo.setAttribute('position', position);
+            newo.setAttribute('value', value);
+            sceneEl.appendChild(newo);
+            $.notify("Se ha enviado la pregunta ", "info");
+        }
+
 
         conn.onmessage = function(e) {
             console.log('llego mensaje');
@@ -167,6 +194,15 @@
                 return;
             }
 
+            if(data.type == 'question'){
+                var sceneEl = document.querySelector('a-scene');
+                var newo = document.createElement('a-text');
+                newo.setAttribute('position', data.position);
+                newo.setAttribute('value', data.question);
+                $.notify(data.alias + " agrego una pregunta");
+                sceneEl.appendChild(newo);
+            }
+
             //If it isn't "undefined" and it isn't "null", then it exists.
             if(typeof(element) != 'undefined' && element != null){
                 element.setAttribute('position', data.position);
@@ -182,6 +218,31 @@
         };
 
 
+    </script>
+
+    <div id="openModal" class="modalDialog">
+        <div>
+            <a href="#close" title="Close" class="close">X</a>
+            <h2>Crear pregunta</h2>
+            <div>
+                <label for="question">Pregunta
+                    <textarea id='question' name="question" id="" cols="30" rows="10"></textarea>
+                </label>
+            </div><br />
+            <button id="send-question" onclick="sendQuestion();">Enviar</button>
+        </div>
+    </div>
+
+    <script>
+        $(".close").on('click',function(){
+            $(".modalDialog").css({"opacity":"0","pointer-events":"none"});
+        });
+
+        $( "body" ).keypress(function(event) {
+            if ( event.which == 46 ) {
+                $(".modalDialog").css({"opacity":"1","pointer-events":"auto"});
+            }
+        });
     </script>
 
 </a-scene>

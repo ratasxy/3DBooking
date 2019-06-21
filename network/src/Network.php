@@ -3,6 +3,8 @@ namespace MyApp;
 use Ratchet\MessageComponentInterface;
 use Ratchet\ConnectionInterface;
 
+require 'rb-sqlite.php';
+
 class Network implements MessageComponentInterface {
     protected $clients;
     protected $rooms;
@@ -10,6 +12,8 @@ class Network implements MessageComponentInterface {
     public function __construct() {
         $this->clients = new \SplObjectStorage;
         $this->rooms = array();
+
+        \R::setup( 'sqlite:/tmp/dbfile.db' );
     }
 
     public function onOpen(ConnectionInterface $conn) {
@@ -37,6 +41,33 @@ class Network implements MessageComponentInterface {
             $this->rooms[$room]->attach($from);
             echo "Agregado $alias a la sala $room! ({$from->resourceId})\n";
 
+
+            return;
+        }
+
+        if($message->type == 'question'){
+            $room = $message->room;
+            $alias = $message->alias;
+            if(!isset($this->rooms[$room])){
+                $this->rooms[$room] = new \SplObjectStorage;
+                echo "Creando sala\n";
+            }
+
+            $question = \R::dispense( 'question' );
+            $question->room = $room;
+            $question->alias = $alias;
+            $question->position = json_encode($message->position);
+            $question->question = $message->question;
+            $id = \R::store( $question );
+
+            foreach ($this->rooms[$room] as $client) {
+                if ($from !== $client) {
+                    // The sender is not the receiver, send to each client connected
+                    $client->send($msg);
+                }
+
+                echo "Enviando la pregunta de $alias a la sala\n";
+            }
 
             return;
         }
