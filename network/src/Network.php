@@ -41,6 +41,20 @@ class Network implements MessageComponentInterface {
             $this->rooms[$room]->attach($from);
             echo "Agregado $alias a la sala $room! ({$from->resourceId})\n";
 
+            $questions  = \R::find( 'question', ' room = ? ', [ $room ]);
+
+            foreach($questions as $question){
+                $from->send(
+                    base64_encode(json_encode(
+                    array(
+                        'type' => 'question',
+                        'room' => $question->room,
+                        'alias' => $question->alias,
+                        'position' => json_decode($question->position),
+                        'question' => $question->question
+                    )))
+                );
+            }
 
             return;
         }

@@ -11,9 +11,16 @@
     <script src="https://unpkg.com/aframe-animation-component@^4.1.2/dist/aframe-animation-component.min.js"></script>
     <script src="https://unpkg.com/aframe-look-at-component@0.5.1/dist/aframe-look-at-component.min.js"></script>
     <script src="https://rawgit.com/urish/aframe-camera-events/master/index.js"></script>
+    <link rel="stylesheet" href="css/materialize.min.css">
+    <script src="js/materialize.min.js"></script>
     <script src="js/jquery.js"></script>
     <script src="js/notify.min.js"></script>
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.0/css/all.css" integrity="sha384-lZN37f5QGtY3VHgisS14W3ExzMWZxybE1SJSEsQp9S+oqd12jhcu+A56Ebc1zFSJ" crossorigin="anonymous">
+    <style>
+        #escena{
+            height: 600px;
+        }
+    </style>
     <script>
         AFRAME.registerComponent('hotspots',{
             init:function(){
@@ -63,7 +70,11 @@
 </head>
 <body>
 <?php include 'Data.php'; ?>
-<a-scene background="color: #ECECEC">
+
+<div class="container">
+    <div class="row">
+        <div id="escena" class="col s8 blue darken-4 white-text center-align principal">
+<a-scene embedded background="color: #ECECEC">
     <a-assets>
         <?php for($i=0;$i<count($hotels[$_GET['city']][$_GET['hotel']]['rooms'][$_GET['room']]['photos']);$i++) { ?>
             <img id="point<?php echo $i; ?>" src="<?php echo $hotels[$_GET['city']][$_GET['hotel']]['rooms'][$_GET['room']]['photos'][$i]['image']; ?>"/>
@@ -94,59 +105,6 @@
         </a-entity>
     </a-camera>
 
-    
-
-    <script>
-
-        if (annyang) {
-            var commandos = {
-                'hola': function() {
-                    alert("¡Hola!");
-                },
-                'atras': function() {
-                    window.location.href = "hotel.php?city=<?php echo $_GET['city'];?>&hotel=<?php echo $_GET['hotel'];?>";
-                },
-                'crear sala': function() {
-                    var sala = Math.floor((Math.random() * 100000) + 100);
-                    window.location.href = document.URL + "&sala=" + sala;
-                },
-                'entrar sala *sala': function(sala) {
-                    window.location.href = document.URL + "&sala=" + sala;
-                },
-                'usuario *user': function(user) {;
-                    window.location.href = document.URL + "&alias=" + user;
-                },
-                'pregunta *question': function(question) {
-                    var sceneEl = document.querySelector('a-scene');
-                    var camera = sceneEl.querySelector('a-camera')
-                    var newo = document.createElement('a-text');
-                    newo.setAttribute('position', camera.getAttribute('position'));
-                    newo.setAttribute('value', question);
-                    conn.send(btoa(JSON.stringify({type:"question", room:"<?echo $_GET['sala']; ?>", alias:"<?echo $_GET['alias']; ?>", position:camera.getAttribute('position'), question:question})));
-                    $.notify("Se agrego la pregunta");
-                    sceneEl.appendChild(newo);
-                },
-            };
-
-            annyang.addCallback('soundstart', function () {
-                $.notify("Escuchando", "info");
-            });
-
-            annyang.addCallback('resultNoMatch', function () {
-                $.notify("Lo siento no te entendi", "warning");
-            });
-
-            annyang.addCallback('error', function(err) {
-                console.log('There was an error in Annyang!',err);
-            });
-
-            annyang.addCommands(commandos);
-
-            annyang.setLanguage("es-MX");
-
-            annyang.start();
-        }
-    </script>
 
     <script>
 
@@ -158,8 +116,6 @@
             }
             return color;
         }
-
-        <?php if(isset($_GET['alias'])): ?>
 
         var conn = new WebSocket('ws://127.0.0.1:2222');
         conn.onopen = function(e) {
@@ -178,14 +134,19 @@
             $(".modalDialog").css({"opacity":"0","pointer-events":"none"});
 
             value = $('#question').val();
+            position = $('#question').attr('data-position');
+            console.log(position);
 
             $('#question').val('');
+            $('#question').attr('data-position', '');
 
             var sceneEl = document.querySelector('a-scene');
             var camera = sceneEl.querySelector('a-camera')
-            var position = camera.getAttribute('position');
 
-            conn.send(btoa(JSON.stringify({type:"question", room:"<?echo $_GET['sala']; ?>", alias:"<?echo $_GET['alias']; ?>", position:position, question:value})));
+            position = JSON.parse(position);
+            position.y = position.z - 0.01;
+
+            conn.send(btoa(JSON.stringify({type:"question", room:"<?echo $_GET['sala']; ?>", alias:"admin", position:position, question:value})));
 
             var newo = document.createElement('a-text');
             newo.setAttribute('position', position);
@@ -213,11 +174,22 @@
             if(data.type == 'question'){
                 console.log(data);
                 var sceneEl = document.querySelector('a-scene');
+                var histo = document.querySelector('#histo');
+                var q = document.querySelector('#question');
                 var newo = document.createElement('a-text');
+                var newl = document.createElement('li');
+                newl.classList.add('collection-item');
+                newl.append(data.question);
+                newl.addEventListener("click", function (event) {
+                    $(".modalDialog").css({"opacity":"1","pointer-events":"auto"});
+                    q.setAttribute('data-position', event.target.getAttribute('position'))
+                });
+                newl.setAttribute('position', JSON.stringify(data.position));
                 newo.setAttribute('position', data.position);
                 newo.setAttribute('value', data.question);
                 $.notify(data.alias + " agrego una pregunta");
                 sceneEl.appendChild(newo);
+                histo.appendChild(newl);
                 return;
             }
 
@@ -234,7 +206,6 @@
             }
 
         };
-        <?php endif; ?>
 
 
     </script>
@@ -245,7 +216,7 @@
             <h2>Crear pregunta</h2>
             <div>
                 <label for="question">Pregunta
-                    <textarea id='question' name="question" id="" cols="30" rows="10"></textarea>
+                    <textarea id='question' name="question" data-position="" id="" cols="30" rows="10"></textarea>
                 </label>
             </div><br />
             <button id="send-question" onclick="sendQuestion();">Enviar</button>
@@ -257,13 +228,16 @@
             $(".modalDialog").css({"opacity":"0","pointer-events":"none"});
         });
 
-        $( "body" ).keypress(function(event) {
-            if ( event.which == 46 ) {
-                $(".modalDialog").css({"opacity":"1","pointer-events":"auto"});
-            }
-        });
     </script>
 
 </a-scene>
+        </div>
+        <div class="col s4 blue lighten-5 principal">
+            <ul id="histo" class="collection">
+
+            </ul>
+        </div>
+    </div>
+</div>
 </body>
 </html>
