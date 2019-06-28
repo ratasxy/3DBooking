@@ -14,6 +14,12 @@
     <script src="js/jquery.js"></script>
     <script src="js/notify.min.js"></script>
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.0/css/all.css" integrity="sha384-lZN37f5QGtY3VHgisS14W3ExzMWZxybE1SJSEsQp9S+oqd12jhcu+A56Ebc1zFSJ" crossorigin="anonymous">
+
+    <style>
+        .answered{
+            background-color: #b2dfdb;
+        }
+    </style>
     <script>
         AFRAME.registerComponent('hotspots',{
             init:function(){
@@ -211,12 +217,19 @@
             }
 
             if(data.type == 'question'){
-                console.log(data);
                 var sceneEl = document.querySelector('a-scene');
                 var newo = document.createElement('a-text');
                 newo.setAttribute('position', data.position);
                 newo.setAttribute('value', data.question);
-                $.notify(data.alias + " agrego una pregunta");
+                if(data.alias == 'admin'){
+                    newo.setAttribute('value', 'RESPUESTA:' + data.question);
+                    newo.setAttribute('color', '#ECECEC');
+                    console.log(newo);
+                    $.notify("El administrador respondio una pregunta");
+                }else{
+                    $.notify(data.alias + " agrego una pregunta");
+                }
+
                 sceneEl.appendChild(newo);
                 return;
             }

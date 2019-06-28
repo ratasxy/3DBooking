@@ -20,6 +20,9 @@
         #escena{
             height: 600px;
         }
+        .answered{
+            background-color: #b2dfdb;
+        }
     </style>
     <script>
         AFRAME.registerComponent('hotspots',{
@@ -144,7 +147,7 @@
             var camera = sceneEl.querySelector('a-camera')
 
             position = JSON.parse(position);
-            position.y = position.z - 0.01;
+            position.y = position.y - 0.5;
 
             conn.send(btoa(JSON.stringify({type:"question", room:"<?echo $_GET['sala']; ?>", alias:"admin", position:position, question:value})));
 
@@ -152,7 +155,7 @@
             newo.setAttribute('position', position);
             newo.setAttribute('value', value);
             sceneEl.appendChild(newo);
-            $.notify("Se ha enviado la pregunta ", "info");
+            $.notify("Se ha enviado una respuesta ", "info");
         }
 
 
@@ -177,19 +180,24 @@
                 var histo = document.querySelector('#histo');
                 var q = document.querySelector('#question');
                 var newo = document.createElement('a-text');
-                var newl = document.createElement('li');
-                newl.classList.add('collection-item');
-                newl.append(data.question);
-                newl.addEventListener("click", function (event) {
-                    $(".modalDialog").css({"opacity":"1","pointer-events":"auto"});
-                    q.setAttribute('data-position', event.target.getAttribute('position'))
-                });
-                newl.setAttribute('position', JSON.stringify(data.position));
+
+                if(data.alias != 'admin'){
+                    var newl = document.createElement('li');
+                    newl.classList.add('collection-item');
+                    newl.append(data.question);
+                    newl.addEventListener("click", function (event) {
+                        $(".modalDialog").css({"opacity":"1","pointer-events":"auto"});
+                        q.setAttribute('data-position', event.target.getAttribute('position'))
+                    });
+                    newl.setAttribute('position', JSON.stringify(data.position));
+                    histo.appendChild(newl);
+                }
+
+
                 newo.setAttribute('position', data.position);
                 newo.setAttribute('value', data.question);
                 $.notify(data.alias + " agrego una pregunta");
                 sceneEl.appendChild(newo);
-                histo.appendChild(newl);
                 return;
             }
 
