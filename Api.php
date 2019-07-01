@@ -68,4 +68,10 @@ switch ($_GET["method"]){
         $r = rand('10000', '99999');
         header('Location: ' . '/Api.php?method=goroom&room=' . $r);
         break;
+
+    case 'logout':
+        unset($_COOKIE['user']);
+        setcookie('user', null, -1, '/');
+        header('Location: ' . '/index.php');
+        break;
 }

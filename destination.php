@@ -45,7 +45,7 @@ if (!isset($_COOKIE["user"]))
     if (annyang) {
         var commandos = {
             'atras': function() {
-                window.location.href = "index.php";
+                window.location.href = "world.php";
             },
         };
 

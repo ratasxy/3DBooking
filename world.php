@@ -51,6 +51,9 @@ if (!isset($_COOKIE["user"]))
               'hola': function() {
                   alert("¡Hola!");
               },
+              'atras': function() {
+                  window.location.href = "menu.php";
+              },
               <?php for($i=0;$i<count($destinations);$i++) { ?>
               '<?php echo $destinations[$i]['name']; ?>': function() {
                   window.location.href = "destination.php?id=<?php echo $i; ?>";
