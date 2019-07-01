@@ -1,3 +1,8 @@
+<?php
+if (!isset($_COOKIE["user"]))
+    header('Location: ' . '/menu.php');
+?>
+
 <!DOCTYPE html>
 <html>
 <head>
@@ -25,7 +30,7 @@
         <img id="hotelback" crossOrigin="anonymous" src="<?php echo $hotels[$_GET['city']][$_GET['hotel']]['image']; ?>" />
     </a-assets>
     <?php for($i=0;$i<count($hotels[$_GET['city']][$_GET['hotel']]['rooms']);$i++) { ?>
-        <a-link href="panoramic.php?city=<?php echo $_GET['city'];?>&hotel=<?php echo $_GET['hotel'];?>&room=<?php echo $i; ?>" title="<?php echo $hotels[$_GET['city']][$_GET['hotel']]['rooms'][$i]['name']; ?>" position="-3.5 1.5 -1.0" image="#thumb-<?php echo $i ?>"></a-link>
+        <a-link href="panoramic2.php?city=<?php echo $_GET['city'];?>&hotel=<?php echo $_GET['hotel'];?>&room=<?php echo $i; ?>&sala=<?php echo $_COOKIE["room"] ?>&alias=<?php echo base64_decode($_COOKIE["user"]);?>" title="<?php echo $hotels[$_GET['city']][$_GET['hotel']]['rooms'][$i]['name']; ?>" position="-3.5 1.5 -1.0" image="#thumb-<?php echo $i ?>"></a-link>
     <?php } ?>
     <a-entity id="sky"
               geometry="primitive: sphere; radius: 10;"

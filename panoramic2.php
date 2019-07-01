@@ -1,3 +1,8 @@
+<?php
+if (!isset($_COOKIE["user"]))
+    header('Location: ' . '/menu.php');
+?>
+
 <!DOCTYPE html>
 <html>
 <head>
@@ -11,6 +16,7 @@
     <script src="https://unpkg.com/aframe-animation-component@^4.1.2/dist/aframe-animation-component.min.js"></script>
     <script src="https://unpkg.com/aframe-look-at-component@0.5.1/dist/aframe-look-at-component.min.js"></script>
     <script src="https://rawgit.com/urish/aframe-camera-events/master/index.js"></script>
+    <script src="https://unpkg.com/aframe-text-geometry-component@^0.5.0/dist/aframe-text-geometry-component.min.js"></script>
     <script src="js/jquery.js"></script>
     <script src="js/notify.min.js"></script>
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.0/css/all.css" integrity="sha384-lZN37f5QGtY3VHgisS14W3ExzMWZxybE1SJSEsQp9S+oqd12jhcu+A56Ebc1zFSJ" crossorigin="anonymous">
@@ -88,7 +94,6 @@
 
     <a-entity id="skybox" src="#point0" geometry="primitive: sphere; radius:20;" material="shader: flat; side: double; src: #point0">
 
-
     </a-entity>
 
     <a-camera id="cam" look-controls movement-controls position-listener>
@@ -127,7 +132,8 @@
                     var camera = sceneEl.querySelector('a-camera')
                     var newo = document.createElement('a-text');
                     newo.setAttribute('position', camera.getAttribute('position'));
-                    newo.setAttribute('value', question);
+                    newo.setAttribute('text-geometry', 'value:' + question + ";");
+                    //newo.setAttribute('value', question);
                     conn.send(btoa(JSON.stringify({type:"question", room:"<?echo $_GET['sala']; ?>", alias:"<?echo $_GET['alias']; ?>", position:camera.getAttribute('position'), question:question})));
                     $.notify("Se agrego la pregunta");
                     sceneEl.appendChild(newo);
@@ -193,9 +199,10 @@
 
             conn.send(btoa(JSON.stringify({type:"question", room:"<?echo $_GET['sala']; ?>", alias:"<?echo $_GET['alias']; ?>", position:position, question:value})));
 
-            var newo = document.createElement('a-text');
+            var newo = document.createElement('a-entity');
             newo.setAttribute('position', position);
-            newo.setAttribute('value', value);
+            newo.setAttribute('text-geometry', 'value:' + value + ";");
+            //newo.setAttribute('value', value);
             sceneEl.appendChild(newo);
             $.notify("Se ha enviado la pregunta ", "info");
         }
@@ -218,11 +225,12 @@
 
             if(data.type == 'question'){
                 var sceneEl = document.querySelector('a-scene');
-                var newo = document.createElement('a-text');
+                var newo = document.createElement('a-entity');
                 newo.setAttribute('position', data.position);
-                newo.setAttribute('value', data.question);
+                newo.setAttribute('text-geometry', 'value:' + data.question + ";");
+                //newo.setAttribute('value', data.question);
                 if(data.alias == 'admin'){
-                    newo.setAttribute('value', 'RESPUESTA:' + data.question);
+                    newo.setAttribute('text-geometry', 'value:RESPUESTA:' + data.question + ";");
                     newo.setAttribute('color', '#ECECEC');
                     console.log(newo);
                     $.notify("El administrador respondio una pregunta");

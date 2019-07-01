@@ -1,3 +1,8 @@
+<?php
+if (!isset($_COOKIE["user"]))
+    header('Location: ' . '/menu.php');
+?>
+
 <!DOCTYPE html>
 <html>
 <head>

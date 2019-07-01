@@ -1,63 +1,54 @@
-<!DOCTYPE html>
-<html>
-  <head>
-    <meta charset="utf-8">
+<?php
+if (isset($_COOKIE["user"]))
+    header('Location: ' . '/menu.php');
+?>
 
-    <title>3D Booking</title>
-    <meta name="description" content="Hoteles Cancun">
-    <script src="https://aframe.io/releases/0.9.1/aframe.min.js"></script>
-    <script src="//cdnjs.cloudflare.com/ajax/libs/annyang/2.6.0/annyang.min.js"></script>
-    <script src="js/LegacyJSONLoader.js"></script>
-    <script src="js/components/aframe-tooltip-component.js"></script>
-    <script src="js/components/camera-position.js"></script>
-    <script src="js/components/ground.js"></script>
-    <script src="js/components/link-controls.js"></script>
-    <script src="shaders/skyGradient.js"></script>
-  </head>
-  <body>
-    <a-scene auto-enter-vr raycaster="far: 100; objects: [link];" cursor="rayOrigin: mouse" camera-position>
-      <a-camera>
-        <a-cursor></a-cursor>
-      </a-camera>
-      <a-assets>
-        <img id="arena" crossOrigin="anonymous" src="img/floor.jpg">
-        <img id="cancun" crossOrigin="anonymous" src="pics/home.jpg">
-      </a-assets>
-      <a-text font="kelsonsans" value="Di tu destino" width="6" position="-1 2 0"
-              rotation="0 15 0"></a-text>
-      <a-entity id="sky"
-                geometry="primitive: sphere; radius: 10;"
-                material="shader: flat; side: double; src: #cancun"></a-entity>
-    </a-scene>
+<head>
+    <link rel="stylesheet" href="css/materialize.min.css">
+    <style>
+        .principal {
+            height: 600px;
+            overflow-y: scroll;
+        }
+    </style>
+    <script src="js/materialize.min.js"></script>
+    <script src="js/jquery.js"></script>
+</head>
 
-  </body>
-  <script>
-      AFRAME.registerComponent('auto-enter-vr', {
-          init: function () {
-              this.el.sceneEl.enterVR();
-          }
-      });
-  </script>
+<body>
+<div class="container">
+    <?php
+    if(isset($_GET['error']))
+        echo $_GET['error'];
+    ?>
+    <div class="row">
+        <div class="col s5 blue darken-4 white-text center-align principal">
+            <h4 class="center blue-text">Login</h4>
 
-  <?php include 'Data.php'; ?>
-  <script>
-      if (annyang) {
-          var commandos = {
-              'hola': function() {
-                  alert("¡Hola!");
-              },
-              <?php for($i=0;$i<count($destinations);$i++) { ?>
-              '<?php echo $destinations[$i]['name']; ?>': function() {
-                  window.location.href = "destination.php?id=<?php echo $i; ?>";
-              },
-              <?php } ?>
-          };
+            <form method="get" action="Api.php">
+                <input name="email" type="text" placeholder="email@dominio.com">
+                <input name="password" type="password" placeholder="password">
+                <input name="method" type="hidden" value="login">
 
-          annyang.addCommands(commandos);
+                <input type="submit" value="Ingresar">
+            </form>
 
-          annyang.setLanguage("es-MX");
+        </div>
+        <div class="col s7 blue lighten-5 principal">
+            <h4 class="center blue-text">Register</h4>
 
-          annyang.start();
-      }
-  </script>
-</html>
+            <form method="get" action="Api.php">
+                <input name="email" type="text" placeholder="email@dominio.com">
+                <input name="password" type="password" placeholder="password">
+                <input name="method" type="hidden" value="register">
+
+                <input type="submit" value="Registrarse">
+            </form>
+        </div>
+    </div>
+</div>
+</body>
+
+<script>
+
+</script>
