@@ -143,6 +143,12 @@
                 return;
             }
 
+            if($("#isVideo").is(':checked'))
+            {
+                sendVideo();
+                return;
+            }
+
             value = $('#question').val();
             position = $('#question').attr('data-position');
             console.log(position);
@@ -166,7 +172,6 @@
         }
 
         function sendImage(){
-            $("#isImage").is(':checked');
 
             value = $('#question').val();
             position = $('#question').attr('data-position');
@@ -184,6 +189,33 @@
             conn.send(btoa(JSON.stringify({type:"image", room:"<?echo $_GET['sala']; ?>", alias:"admin", position:position, question:value})));
 
             var newo = document.createElement('a-image');
+
+            newo.setAttribute('position', position);
+            newo.setAttribute('src', value);
+            newo.setAttribute('width', 3);
+            newo.setAttribute('height', 3);
+            sceneEl.appendChild(newo);
+            $.notify("Se ha enviado una imagen ", "info");
+        }
+
+        function sendVideo(){
+
+            value = $('#question').val();
+            position = $('#question').attr('data-position');
+
+            $('#question').val('');
+            $('#question').attr('data-position', '');
+            $( "#isImage" ).prop( "checked", false );
+
+            var sceneEl = document.querySelector('a-scene');
+            var camera = sceneEl.querySelector('a-camera')
+
+            position = JSON.parse(position);
+            position.y = position.y - 3;
+
+            conn.send(btoa(JSON.stringify({type:"video", room:"<?echo $_GET['sala']; ?>", alias:"admin", position:position, question:value})));
+
+            var newo = document.createElement('a-video');
 
             newo.setAttribute('position', position);
             newo.setAttribute('src', value);
@@ -263,10 +295,19 @@
                     opacity: inherit;!important;
                     pointer-events: all;!important;
                 }
+                #isVideo {
+                    -webkit-appearance:checkbox;!important;
+                    opacity: inherit;!important;
+                    pointer-events: all;!important;
+                }
             </style>
             <div>
                 <label for="isImage">Es una imagen
                     <input name="isImage" type="checkbox" id="isImage"/>
+                    <br/>
+                </label>
+                <label for="isVideo">Es una video
+                    <input name="isVideo" type="checkbox" id="isVideo"/>
                     <br/>
                 </label>
                 <label for="question">Pregunta

@@ -255,6 +255,21 @@ if (!isset($_COOKIE["user"]))
                 return;
             }
 
+            if(data.type == 'video'){
+                var sceneEl = document.querySelector('a-scene');
+                var newo = document.createElement('a-video');
+                newo.setAttribute('position', data.position);
+                newo.setAttribute('src', data.question);
+                newo.setAttribute('width', 3);
+                newo.setAttribute('height', 3);
+                newo.setAttribute('autoplay', true);
+                newo.setAttribute('loop', true);
+                $.notify(data.alias + " agrego una pregunta");
+
+                sceneEl.appendChild(newo);
+                return;
+            }
+
             //If it isn't "undefined" and it isn't "null", then it exists.
             if(typeof(element) != 'undefined' && element != null){
                 element.setAttribute('position', data.position);
