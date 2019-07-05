@@ -242,6 +242,19 @@ if (!isset($_COOKIE["user"]))
                 return;
             }
 
+            if(data.type == 'image'){
+                var sceneEl = document.querySelector('a-scene');
+                var newo = document.createElement('a-image');
+                newo.setAttribute('position', data.position);
+                newo.setAttribute('src', data.question);
+                newo.setAttribute('width', 3);
+                newo.setAttribute('height', 3);
+                $.notify(data.alias + " agrego una pregunta");
+
+                sceneEl.appendChild(newo);
+                return;
+            }
+
             //If it isn't "undefined" and it isn't "null", then it exists.
             if(typeof(element) != 'undefined' && element != null){
                 element.setAttribute('position', data.position);

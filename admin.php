@@ -23,6 +23,7 @@
         .answered{
             background-color: #b2dfdb;
         }
+
     </style>
     <script>
         AFRAME.registerComponent('hotspots',{
@@ -136,6 +137,12 @@
         function sendQuestion(){
             $(".modalDialog").css({"opacity":"0","pointer-events":"none"});
 
+            if($("#isImage").is(':checked'))
+            {
+                sendImage();
+                return;
+            }
+
             value = $('#question').val();
             position = $('#question').attr('data-position');
             console.log(position);
@@ -156,6 +163,34 @@
             newo.setAttribute('value', value);
             sceneEl.appendChild(newo);
             $.notify("Se ha enviado una respuesta ", "info");
+        }
+
+        function sendImage(){
+            $("#isImage").is(':checked');
+
+            value = $('#question').val();
+            position = $('#question').attr('data-position');
+
+            $('#question').val('');
+            $('#question').attr('data-position', '');
+            $( "#isImage" ).prop( "checked", false );
+
+            var sceneEl = document.querySelector('a-scene');
+            var camera = sceneEl.querySelector('a-camera')
+
+            position = JSON.parse(position);
+            position.y = position.y - 3;
+
+            conn.send(btoa(JSON.stringify({type:"image", room:"<?echo $_GET['sala']; ?>", alias:"admin", position:position, question:value})));
+
+            var newo = document.createElement('a-image');
+
+            newo.setAttribute('position', position);
+            newo.setAttribute('src', value);
+            newo.setAttribute('width', 3);
+            newo.setAttribute('height', 3);
+            sceneEl.appendChild(newo);
+            $.notify("Se ha enviado una imagen ", "info");
         }
 
 
@@ -222,7 +257,18 @@
         <div>
             <a href="#close" title="Close" class="close">X</a>
             <h2>Crear pregunta</h2>
+            <style>
+                #isImage {
+                    -webkit-appearance:checkbox;!important;
+                    opacity: inherit;!important;
+                    pointer-events: all;!important;
+                }
+            </style>
             <div>
+                <label for="isImage">Es una imagen
+                    <input name="isImage" type="checkbox" id="isImage"/>
+                    <br/>
+                </label>
                 <label for="question">Pregunta
                     <textarea id='question' name="question" data-position="" id="" cols="30" rows="10"></textarea>
                 </label>

@@ -49,6 +49,16 @@ if (!isset($_COOKIE["user"]))
 
                 <input type="submit" value="Entrar">
             </form>
+
+            <br/>
+            <br/>
+            <br/>
+            <br/>
+            <br/>
+            <br/>
+            <br/>
+
+            <a href="Api.php?method=logout">Cerrar session</a>
         </div>
     </div>
 </div>
