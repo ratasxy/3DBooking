@@ -173,7 +173,7 @@ if (!isset($_COOKIE["user"]))
 
         <?php if(isset($_GET['alias'])): ?>
 
-        var conn = new WebSocket('ws://127.0.0.1:2222');
+        var conn = new WebSocket('wss://172.20.10.2/wss/');
         conn.onopen = function(e) {
             console.log("Connection established!");
             var login = {type:"login", room:"<?echo $_GET['sala']; ?>", alias:"<?echo $_GET['alias']; ?>"};
